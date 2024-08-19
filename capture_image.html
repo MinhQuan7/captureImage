@@ -1,33 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chụp Ảnh từ HIKVISION</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+ 
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+ 
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+ 
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+ 
+input:checked + .slider {
+  background-color: #2196F3;
+}
+ 
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+ 
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+ 
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+ 
+.slider.round:before {
+  border-radius: 50%;
+}
+</style>
 </head>
-
 <body>
-    <button id="captureButton">Chụp Ảnh</button>
-    <script>
-        document.getElementById('captureButton').addEventListener('click', function() {
-            fetch("http://admin:Eoh54321@14.241.233.207:28001/ISAPI/Streaming/channels/1/picture", {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Basic ' + btoa('admin:Eoh54321')
-                }
-            })
-            .then(response => response.blob())
-            .then(blob => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'snapshot.jpg';  // Tên tệp sẽ được lưu trên máy tính
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);  // Xóa phần tử <a> sau khi tải xuống
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    </script>
+ 
+<label class="switch">
+  <input type="checkbox" id="the_switch">
+  <span class="slider round"></span>
+</label>
+
+<script src="https://www.unpkg.com/@eohjsc/era-widget@1.0.14/src/index.js"></script>
+<script>
+  const eraWidget = new EraWidget();
+  let config = null;
+  
+  eraWidget.onConfiguration((configuration) => {
+    config = configuration.realtime_configs[0];
+  });
+
+  eraWidget.onValues((values) => {
+    const input = document.getElementById('the_switch');
+    input.checked = values[config.id].value;
+
+    if (input.checked) {
+      fetch("http://admin:Eoh54321@14.241.233.207:28001/ISAPI/Streaming/channels/1/picture", {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + btoa('admin:Eoh54321')
+        }
+      })
+      .then(response => response.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'snapshot.jpg';  // Tên tệp sẽ được lưu trên máy tính
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);  // Xóa phần tử <a> sau khi tải xuống
+      })
+      .catch(error => console.error('Error:', error));
+    }
+  });
+
+  eraWidget.ready();
+</script>
 </body>
 </html>
