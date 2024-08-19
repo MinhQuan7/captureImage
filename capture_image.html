@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hiển Thị Hình Ảnh từ HIKVISION</title>
+    <title>Tải và Hiển Thị Hình Ảnh từ HIKVISION</title>
     <style>
         #imageContainer {
             margin-top: 20px;
@@ -17,11 +17,11 @@
     </style>
 </head>
 <body>
-    <button id="viewImageButton">Hiển Thị Hình Ảnh</button>
+    <button id="captureAndDownloadButton">Chụp và Tải Ảnh</button>
     <div id="imageContainer"></div>
 
     <script>
-        document.getElementById('viewImageButton').addEventListener('click', function() {
+        document.getElementById('captureAndDownloadButton').addEventListener('click', function() {
             const imageUrl = "http://admin:Eoh54321@14.241.233.207:28001/ISAPI/Streaming/channels/1/picture";
 
             fetch(imageUrl, {
@@ -32,7 +32,18 @@
             })
             .then(response => response.blob())
             .then(blob => {
+                // Tạo URL tạm thời cho hình ảnh
                 const url = URL.createObjectURL(blob);
+                
+                // Tạo một thẻ <a> để tự động tải xuống
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'snapshot.jpg';  // Tên tệp khi tải xuống
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);  // Xóa thẻ <a> sau khi tải xuống
+
+                // Hiển thị ảnh đã tải trong trang web
                 const img = document.createElement('img');
                 img.src = url;
                 img.alt = 'Hình Ảnh từ HIKVISION';
