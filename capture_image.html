@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capture Image: HIKVISION</title>
+</head>
+<body>
+    <button id="captureButton">Chụp Ảnh</button>
+    <div id="imageContainer"></div>
+    <script>
+        document.getElementById('captureButton').addEventListener('click', function() {
+            fetch("http://admin:Eoh54321@14.241.233.207:28001/ISAPI/Streaming/channels/1/picture", {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Basic ' + btoa('admin:Eoh54321')
+                }
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = 'Snapshot';
+                img.style.maxWidth = '100%';
+                const container = document.getElementById('imageContainer');
+                container.innerHTML = '';  // Xóa ảnh cũ (nếu có)
+                container.appendChild(img);
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
