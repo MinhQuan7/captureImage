@@ -3,22 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hiển Thị Ảnh từ HIKVISION</title>
+    <title>Hiển Thị Hình Ảnh từ HIKVISION</title>
+    <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        #imageContainer {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        iframe {
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    <button id="showImageButton">Hiển Thị Ảnh</button>
+
+    <label class="switch">
+        <input type="checkbox" id="the_switch">
+        <span class="slider round"></span>
+    </label>
+    <button id="viewImageButton">Hiển Thị Hình Ảnh</button>
     <div id="imageContainer"></div>
 
+    <script src="https://www.unpkg.com/@eohjsc/era-widget@1.0.14/src/index.js"></script>
     <script>
-        document.getElementById('showImageButton').addEventListener('click', function() {
+        const eraWidget = new EraWidget();
+        let config = null;
+
+        eraWidget.onConfiguration((configuration) => {
+            config = configuration.realtime_configs[0];
+        });
+
+        eraWidget.onValues((values) => {
+            const input = document.getElementById('the_switch');
+            input.checked = values[config.id].value;
+        });
+
+        eraWidget.ready();
+
+        document.getElementById('viewImageButton').addEventListener('click', function() {
             const imageUrl = "http://admin:Eoh54321@14.241.233.207:28001/ISAPI/Streaming/channels/1/picture";
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.alt = "Ảnh từ HIKVISION";
-            img.style.maxWidth = '100%';  // Điều chỉnh kích thước ảnh cho phù hợp
             const container = document.getElementById('imageContainer');
-            container.innerHTML = '';  // Xóa ảnh cũ (nếu có)
-            container.appendChild(img);
+            container.innerHTML = '';  // Xóa nội dung cũ (nếu có)
+
+            const iframe = document.createElement('iframe');
+            iframe.src = imageUrl;
+            iframe.style.width = '100%';
+            iframe.style.height = '500px';
+            container.appendChild(iframe);
         });
     </script>
 </body>
