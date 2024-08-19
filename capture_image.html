@@ -22,15 +22,22 @@
 
     <script>
         document.getElementById('captureAndDownloadButton').addEventListener('click', function() {
-            const imageUrl = "http://admin:Eoh54321@14.241.233.207:28001/ISAPI/Streaming/channels/1/picture";
+            const imageUrl = "http://14.241.233.207:28001/ISAPI/Streaming/channels/1/picture";
+            const username = "admin";
+            const password = "Eoh54321";
 
             fetch(imageUrl, {
                 method: 'GET',
                 headers: {
-                    'Authorization': 'Basic ' + btoa('admin:Eoh54321')
+                    'Authorization': 'Basic ' + btoa(username + ':' + password)
                 }
             })
-            .then(response => response.blob())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Lỗi khi tải ảnh: ' + response.statusText);
+                }
+                return response.blob();
+            })
             .then(blob => {
                 // Tạo URL tạm thời cho hình ảnh
                 const url = URL.createObjectURL(blob);
@@ -51,7 +58,7 @@
                 container.innerHTML = '';  // Xóa ảnh cũ (nếu có)
                 container.appendChild(img);
             })
-            .catch(error => console.error('Lỗi khi tải ảnh:', error));
+            .catch(error => console.error(error));
         });
     </script>
 </body>
