@@ -1,12 +1,24 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <HTTPClient.h>
+#include <mbedtls/base64.h>  // Thư viện để mã hóa Base64
 
 // Thông tin kết nối WiFi
-const char* ssid = "eoh.io";          
-const char* password = "Eoh@2020";    
+const char* ssid = "eoh.io";
+const char* password = "Eoh@2020";
+
+// Thông tin xác thực HIKVISION
+const char* hikvision_username = "admin";
+const char* hikvision_password = "Eoh54321";
 
 WebServer server(80); // HTTP Server trên cổng 80
+
+String base64_encode(String input) {
+  size_t output_length;
+  unsigned char output[128];
+  mbedtls_base64_encode(output, sizeof(output), &output_length, (const unsigned char *)input.c_str(), input.length());
+  return String((char*)output);
+}
 
 void setup() {
   Serial.begin(115200);
@@ -19,7 +31,7 @@ void setup() {
   
   Serial.println("Đã kết nối WiFi!");
   Serial.print("Địa chỉ IP của ESP32: ");
-  Serial.println(WiFi.localIP());  
+  Serial.println(WiFi.localIP());
 
   server.on("/get_image", handleCaptureImage);
   server.begin();
@@ -27,30 +39,25 @@ void setup() {
 }
 
 void handleCaptureImage() {
-  Serial.println("Đã nhận được yêu cầu chụp ảnh!");
-
   HTTPClient http;
 
-  // URL của camera HKVISION
   String url = "http://14.241.233.207:28001/ISAPI/Streaming/channels/1/picture";
-
-  // Chuỗi xác thực Base64
-  String authHeader = "Basic YWRtaW46RW9oNTQzMjE="; // "admin:Eoh54321" mã hóa thành Base64
+  
+  // Tạo chuỗi xác thực Basic
+  String auth = String(hikvision_username) + ":" + String(hikvision_password);
+  auth = base64_encode(auth);
+  String authHeader = "Basic " + auth;
 
   http.begin(url);
-  http.addHeader("Authorization", authHeader);  // Thêm Header xác thực
-
+  http.addHeader("Authorization", authHeader);
+  
   int httpCode = http.GET();
 
-  Serial.print("HTTP Code từ HIKVISION: ");
-  Serial.println(httpCode);
-
   if (httpCode == HTTP_CODE_OK) {
-    Serial.println("Chụp ảnh thành công, đang gửi ảnh...");
     WiFiClient *stream = http.getStreamPtr();
     server.sendHeader("Content-Type", "image/jpeg");
     server.send(200, "image/jpeg", "");
-    
+
     uint8_t buffer[128] = { 0 };
     while (stream->available()) {
       size_t len = stream->read(buffer, sizeof(buffer));

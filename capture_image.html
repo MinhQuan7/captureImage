@@ -3,53 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chụp Ảnh từ HIKVISION</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        img {
-            margin-top: 20px;
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <title>Chụp Ảnh từ Camera</title>
 </head>
 <body>
-
-    <h1>Chụp Ảnh từ HKVISION</h1>
-    <button id="captureButton">Chụp Ảnh</button>
-    <div id="imageContainer"></div>
+    <h1>Chụp Ảnh từ Camera HIKVISION</h1>
+    <button id="captureBtn">Chụp Ảnh</button>
+    <br><br>
+    <img id="cameraImage" src="" alt="Ảnh từ Camera sẽ hiển thị tại đây" style="max-width: 100%; height: auto;">
 
     <script>
-        document.getElementById('captureButton').addEventListener('click', function() {
-            const esp32Url = 'https://fbdf-14-241-233-207.ngrok-free.app/get_image';  // URL do Ngrok cung cấp
-
-            fetch(esp32Url)
-                .then(response => {
-                    if (response.ok) {
-                        return response.blob();
-                    } else {
-                        throw new Error('HTTP Error: ' + response.status + ' ' + response.statusText);
-                    }
-                })
+        const captureBtn = document.getElementById('captureBtn');
+        const cameraImage = document.getElementById('cameraImage');
+        
+        captureBtn.addEventListener('click', () => {
+            fetch('https://fbdf-14-241-233-207.ngrok-free.app/get_image')
+                .then(response => response.blob())
                 .then(blob => {
-                    const img = document.createElement('img');
-                    img.src = URL.createObjectURL(blob);
-                    document.getElementById('imageContainer').innerHTML = '';
-                    document.getElementById('imageContainer').appendChild(img);
+                    const url = URL.createObjectURL(blob);
+                    cameraImage.src = url;
                 })
-                .catch(error => {
-                    console.error('Lỗi:', error);
-                    document.getElementById('imageContainer').innerHTML = 'Lỗi: ' + error.message;
-                });
+                .catch(error => console.error('Lỗi:', error));
         });
     </script>
 </body>
