@@ -1,9 +1,10 @@
 #include <WiFi.h>
-#include "WebServer.h"
-#include "HTTPClient.h"
+#include <WebServer.h>
+#include <HTTPClient.h>
+#include "mbedtls/base64.h"  // Sử dụng mbedtls cho Base64
 
 // Thông tin kết nối WiFi
-const char* ssid = "eoh.io";
+const char* ssid = " eoh.io";
 const char* password = "Eoh@2020";
 
 // Thông tin API của HIKVISION
@@ -17,7 +18,17 @@ WebServer server(80);
 void handleCaptureImage() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-    String authHeader = "Basic " + base64::encode(String(username) + ":" + String(userpassword));
+
+    // Tạo chuỗi xác thực
+    String authString = String(username) + ":" + String(userpassword);
+    size_t toencodeLength = authString.length();
+    size_t encodedLength = 0;
+
+    // Mã hóa bằng Base64
+    unsigned char encodedData[128];
+    mbedtls_base64_encode(encodedData, sizeof(encodedData), &encodedLength, (const unsigned char*)authString.c_str(), toencodeLength);
+    
+    String authHeader = "Basic " + String((char*)encodedData);
 
     http.begin(imageUrl);
     http.addHeader("Authorization", authHeader);
