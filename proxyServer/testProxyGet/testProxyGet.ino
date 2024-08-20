@@ -3,10 +3,10 @@
 #include <HTTPClient.h>
 
 // Thông tin kết nối WiFi
-const char* ssid = "eoh.io";          // SSID WiFi của bạn
-const char* password = "Eoh@2020";    // Mật khẩu WiFi của bạn
+const char* ssid = "eoh.io";          
+const char* password = "Eoh@2020";    
 
-WebServer server(443); // HTTPS Server trên cổng 443
+WebServer server(80); // HTTP Server trên cổng 80
 
 void setup() {
   Serial.begin(115200);
@@ -19,12 +19,11 @@ void setup() {
   
   Serial.println("Đã kết nối WiFi!");
   Serial.print("Địa chỉ IP của ESP32: ");
-  Serial.println(WiFi.localIP());  // In ra địa chỉ IP của ESP32
+  Serial.println(WiFi.localIP());  
 
-  // Cấu hình URL xử lý yêu cầu từ IoT Platform
   server.on("/get_image", handleCaptureImage);
   server.begin();
-  Serial.println("HTTPS Server đã bắt đầu");
+  Serial.println("HTTP Server đã bắt đầu");
 }
 
 void handleCaptureImage() {
