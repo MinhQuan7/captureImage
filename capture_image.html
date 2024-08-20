@@ -3,11 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hiển Thị Hình Ảnh từ Google Drive</title>
+    <title>Chụp Ảnh từ HIKVISION</title>
     <style>
-        #imageContainer {
-            margin-top: 20px;
+        body {
+            font-family: Arial, sans-serif;
             text-align: center;
+            margin-top: 50px;
         }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
 
-       
+    <h1>Chụp Ảnh từ HIKVISION</h1>
+    <button id="captureButton">Chụp Ảnh</button>
+    <div id="imageContainer"></div>
+
+    <script>
+        document.getElementById('captureButton').addEventListener('click', function() {
+            const esp32Url = 'https://YOUR_ESP32_IP_ADDRESS/get_image';  // Thay YOUR_ESP32_IP_ADDRESS bằng địa chỉ IP thực tế của ESP32
+
+            fetch(esp32Url)
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        throw new Error('Không thể chụp ảnh: ' + response.statusText);
+                    }
+                })
+                .then(blob => {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(blob);
+                    document.getElementById('imageContainer').innerHTML = '';
+                    document.getElementById('imageContainer').appendChild(img);
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    document.getElementById('imageContainer').innerHTML = 'Lỗi: ' + error.message;
+                });
+        });
+    </script>
+
+</body>
+</html>
