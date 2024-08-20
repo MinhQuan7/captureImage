@@ -4,7 +4,7 @@
 #include "mbedtls/base64.h"  // Sử dụng mbedtls cho Base64
 
 // Thông tin kết nối WiFi
-const char* ssid = " eoh.io";
+const char* ssid = "eoh.io";
 const char* password = "Eoh@2020";
 
 // Thông tin API của HIKVISION
